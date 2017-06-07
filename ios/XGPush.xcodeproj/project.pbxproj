@@ -1,0 +1,299 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C50FF02A1D54262A00CEF3D0 /* XGPushManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C50FF0291D54262A00CEF3D0 /* XGPushManager.m */; };
+		C5D48E341D5428F4004BD09A /* libXG-SDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C5D48E331D5428F4004BD09A /* libXG-SDK.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C50FF0221D54262A00CEF3D0 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C50FF0241D54262A00CEF3D0 /* libXGPush.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libXGPush.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C50FF0271D54262A00CEF3D0 /* XGPushManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XGPushManager.h; sourceTree = "<group>"; };
+		C50FF0291D54262A00CEF3D0 /* XGPushManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XGPushManager.m; sourceTree = "<group>"; };
+		C5D48E301D5428D2004BD09A /* XGSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XGSetting.h; path = SDK/XGSetting.h; sourceTree = "<group>"; };
+		C5D48E311D5428D2004BD09A /* XGPush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XGPush.h; path = SDK/XGPush.h; sourceTree = "<group>"; };
+		C5D48E331D5428F4004BD09A /* libXG-SDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libXG-SDK.a"; path = "SDK/libXG-SDK.a"; sourceTree = "<group>"; };
+		C5D48E761D54731F004BD09A /* libReact.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReact.a; path = "../../react-native/React/build/Debug-iphoneos/libReact.a"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C50FF0211D54262A00CEF3D0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5D48E341D5428F4004BD09A /* libXG-SDK.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C50FF01B1D54262A00CEF3D0 = {
+			isa = PBXGroup;
+			children = (
+				C5D48E321D5428DE004BD09A /* Frameworks */,
+				C5D48E2F1D5428C1004BD09A /* SDK */,
+				C50FF0261D54262A00CEF3D0 /* XGPush */,
+				C50FF0251D54262A00CEF3D0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C50FF0251D54262A00CEF3D0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C50FF0241D54262A00CEF3D0 /* libXGPush.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C50FF0261D54262A00CEF3D0 /* XGPush */ = {
+			isa = PBXGroup;
+			children = (
+				C50FF0271D54262A00CEF3D0 /* XGPushManager.h */,
+				C50FF0291D54262A00CEF3D0 /* XGPushManager.m */,
+			);
+			path = XGPush;
+			sourceTree = "<group>";
+		};
+		C5D48E2F1D5428C1004BD09A /* SDK */ = {
+			isa = PBXGroup;
+			children = (
+				C5D48E301D5428D2004BD09A /* XGSetting.h */,
+				C5D48E311D5428D2004BD09A /* XGPush.h */,
+			);
+			name = SDK;
+			sourceTree = "<group>";
+		};
+		C5D48E321D5428DE004BD09A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C5D48E761D54731F004BD09A /* libReact.a */,
+				C5D48E331D5428F4004BD09A /* libXG-SDK.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C50FF0231D54262A00CEF3D0 /* XGPush */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C50FF02D1D54262A00CEF3D0 /* Build configuration list for PBXNativeTarget "XGPush" */;
+			buildPhases = (
+				C50FF0201D54262A00CEF3D0 /* Sources */,
+				C50FF0211D54262A00CEF3D0 /* Frameworks */,
+				C50FF0221D54262A00CEF3D0 /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = XGPush;
+			productName = RCTXGPush;
+			productReference = C50FF0241D54262A00CEF3D0 /* libXGPush.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C50FF01C1D54262A00CEF3D0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = Jeepeng;
+				TargetAttributes = {
+					C50FF0231D54262A00CEF3D0 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = C50FF01F1D54262A00CEF3D0 /* Build configuration list for PBXProject "XGPush" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = C50FF01B1D54262A00CEF3D0;
+			productRefGroup = C50FF0251D54262A00CEF3D0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C50FF0231D54262A00CEF3D0 /* XGPush */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C50FF0201D54262A00CEF3D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C50FF02A1D54262A00CEF3D0 /* XGPushManager.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C50FF02B1D54262A00CEF3D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C50FF02C1D54262A00CEF3D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C50FF02E1D54262A00CEF3D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../react-native/React/**",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/SDK/**",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = XGPush;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		C50FF02F1D54262A00CEF3D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../react-native/React/**",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/SDK/**",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = XGPush;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C50FF01F1D54262A00CEF3D0 /* Build configuration list for PBXProject "XGPush" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C50FF02B1D54262A00CEF3D0 /* Debug */,
+				C50FF02C1D54262A00CEF3D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C50FF02D1D54262A00CEF3D0 /* Build configuration list for PBXNativeTarget "XGPush" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C50FF02E1D54262A00CEF3D0 /* Debug */,
+				C50FF02F1D54262A00CEF3D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C50FF01C1D54262A00CEF3D0 /* Project object */;
+}
