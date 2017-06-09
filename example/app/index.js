@@ -93,7 +93,11 @@ class Example extends Component {
    * @private
    */
   _onNotification(notification) {
-    alert(JSON.stringify(notification));
+    if(notification.clicked === true) {
+      alert('app处于后台时收到通知' + JSON.stringify(notification));
+    } else {
+      alert('app处于前台时收到通知' + JSON.stringify(notification));
+    }
   }
   
   /**

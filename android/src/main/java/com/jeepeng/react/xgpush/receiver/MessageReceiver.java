@@ -84,22 +84,30 @@ public class MessageReceiver extends XGPushBaseReceiver {
     /**
      * 通知被打开触发的结果
      * @param context
-     * @param message
+     * @param notification
      */
     @Override
-    public void onNotifactionClickedResult(Context context, XGPushClickedResult message) {
-        if (context == null || message == null) {
+    public void onNotifactionClickedResult(Context context, XGPushClickedResult notification) {
+        if (context == null || notification == null) {
             return;
         }
-        if (message.getActionType() == XGPushClickedResult.NOTIFACTION_CLICKED_TYPE) {
+        if (notification.getActionType() == XGPushClickedResult.NOTIFACTION_CLICKED_TYPE) {
             // 通知在通知栏被点击啦。。。。。
             Intent intent = new Intent(Constants.ACTION_ON_NOTIFICATION_CLICKED);
             Bundle bundle = new Bundle();
-            bundle.putString("content", message.getContent());
-            bundle.putString("title", message.getTitle());
+            bundle.putString("content", notification.getContent());
+            bundle.putString("title", notification.getTitle());
+            bundle.putString("custom_content", notification.getCustomContent());
             intent.putExtra("notification", bundle);
+
+            intent.putExtra("title", notification.getTitle());
+            intent.putExtra("content", notification.getContent());
+            intent.putExtra("custom_content", notification.getCustomContent());
+            intent.putExtra("activity", notification.getActivityName());
+            intent.putExtra("msgId", notification.getMsgId());
+            intent.putExtra("notificationActionType", notification.getNotificationActionType());
             context.sendBroadcast(intent);
-        } else if (message.getActionType() == XGPushClickedResult.NOTIFACTION_DELETED_TYPE) {
+        } else if (notification.getActionType() == XGPushClickedResult.NOTIFACTION_DELETED_TYPE) {
             // 通知被清除啦。。。。
             // APP自己处理通知被清除后的相关动作
         }
@@ -116,12 +124,12 @@ public class MessageReceiver extends XGPushBaseReceiver {
         Bundle bundle = new Bundle();
         bundle.putString("content", xgPushShowedResult.getContent());
         bundle.putString("title", xgPushShowedResult.getTitle());
-        bundle.putString("customContent", xgPushShowedResult.getCustomContent());
+        bundle.putString("custom_content", xgPushShowedResult.getCustomContent());
         intent.putExtra("notification", bundle);
 
         intent.putExtra("title", xgPushShowedResult.getTitle());
         intent.putExtra("content", xgPushShowedResult.getContent());
-        intent.putExtra("customContent", xgPushShowedResult.getCustomContent());
+        intent.putExtra("custom_content", xgPushShowedResult.getCustomContent());
         intent.putExtra("activity", xgPushShowedResult.getActivity());
         intent.putExtra("msgId", xgPushShowedResult.getMsgId());
         intent.putExtra("notificationId", xgPushShowedResult.getNotifactionId());

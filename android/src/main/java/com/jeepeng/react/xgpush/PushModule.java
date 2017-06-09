@@ -74,7 +74,7 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
                     case Constants.ACTION_ON_TEXT_MESSAGE:
                         String title = intent.getStringExtra("title");
                         String content = intent.getStringExtra("content");
-                        String customContent = intent.getStringExtra("customContent");
+                        String customContent = intent.getStringExtra("custom_content");
                         params.putString("title", title);
                         params.putString("content", content);
                         params.putString("custom_content", customContent);
@@ -84,16 +84,17 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
                     case Constants.ACTION_ON_NOTIFICATION_SHOWED:
                         params.putString("title", intent.getStringExtra("title"));
                         params.putString("content", intent.getStringExtra("content"));
-                        params.putString("custom_content", intent.getStringExtra("customContent"));
+                        params.putString("custom_content", intent.getStringExtra("custom_content"));
 
                         sendEvent(Constants.EVENT_REMOTE_NOTIFICATION_RECEIVED, params);
                         break;
                     case Constants.ACTION_ON_NOTIFICATION_CLICKED:
                         params.putString("title", intent.getStringExtra("title"));
                         params.putString("content", intent.getStringExtra("content"));
-                        params.putString("custom_content", intent.getStringExtra("customContent"));
+                        params.putString("custom_content", intent.getStringExtra("custom_content"));
+                        params.putBoolean("clicked", true);
 
-                        sendEvent(Constants.ACTION_ON_NOTIFICATION_CLICKED, params);
+                        sendEvent(Constants.EVENT_REMOTE_NOTIFICATION_RECEIVED, params);
                         break;
                     default:
                         break;
@@ -169,7 +170,7 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
      * @param promise
      */
     @ReactMethod
-    public void unregisterPush(final Promise promise) {
+    public void unRegisterPush(final Promise promise) {
         XGPushManager.unregisterPush(this.reactContext, new XGIOperateCallback() {
             @Override
             public void onSuccess(Object data, int flag) {
@@ -295,9 +296,11 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
 
     @Override
     public void onNewIntent(Intent intent) {
+        /*
         Activity activity = getCurrentActivity();
         if (activity != null) {
-            activity.setIntent(intent); // 必须要调用这句
+            activity.setIntent(intent); // 后台运行时点击通知会调用
         }
+        */
     }
 }

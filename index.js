@@ -83,7 +83,7 @@ class XGPush {
     if (Platform.OS === 'ios') {
       return XGPushManager.unRegisterDevice();
     } else {
-      return XGPushManager.unregisterPush();
+      return XGPushManager.unRegisterPush();
     }
     
   }

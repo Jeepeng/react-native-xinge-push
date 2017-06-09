@@ -13,17 +13,6 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-
-#import <UserNotifications/UserNotifications.h>
-@interface AppDelegate() <UNUserNotificationCenterDelegate>
-@end
-#endif
-
-@interface AppDelegate ()
-
-@end
-
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -44,6 +33,7 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   // 统计从推送打开的设备
+  NSLog(@"%@",launchOptions);
   [XGPushManager handleLaunching:launchOptions successCallback:^{
     NSLog(@"[XGPush] Handle launching success");
   } errorCallback:^{
@@ -62,13 +52,20 @@
 {
   [XGPushManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
+
 // Required for the notification event. You must call the completion handler after handling the remote notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-  [XGPushManager didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+  UIApplicationState state = [application applicationState];
+  BOOL isClicked = (state != UIApplicationStateActive);
+  NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+  if(isClicked) {
+    remoteNotification[@"clicked"] = @YES;
+  }
+  [XGPushManager didReceiveRemoteNotification:remoteNotification fetchCompletionHandler:completionHandler];
   // 统计收到推送的设备
-  [XGPushManager handleReceiveNotification:userInfo successCallback:^{
+  [XGPushManager handleReceiveNotification:remoteNotification successCallback:^{
     NSLog(@"[XGPush] Handle receive success");
   } errorCallback:^{
     NSLog(@"[XGPush] Handle receive error");
