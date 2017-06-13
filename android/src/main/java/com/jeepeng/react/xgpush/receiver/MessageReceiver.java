@@ -11,6 +11,11 @@ import com.tencent.android.tpush.XGPushRegisterResult;
 import com.tencent.android.tpush.XGPushShowedResult;
 import com.tencent.android.tpush.XGPushTextMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
+
 /**
  * 消息接收器
  * Created by Jeepeng on 16/8/4.
@@ -25,13 +30,11 @@ public class MessageReceiver extends XGPushBaseReceiver {
      */
     @Override
     public void onRegisterResult(Context context, int errorCode, XGPushRegisterResult xgPushRegisterResult) {
-
         if(errorCode == 0) {
             Intent intent = new Intent(Constants.ACTION_ON_REGISTERED);
             intent.putExtra("token", xgPushRegisterResult.getToken());
             context.sendBroadcast(intent);
         }
-
     }
 
     /**
@@ -77,7 +80,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         Intent intent = new Intent(Constants.ACTION_ON_TEXT_MESSAGE);
         intent.putExtra("title", xgPushTextMessage.getTitle());
         intent.putExtra("content", xgPushTextMessage.getContent());
-        intent.putExtra("customContent", xgPushTextMessage.getCustomContent());
+        intent.putExtra("custom_content", xgPushTextMessage.getCustomContent());
         context.sendBroadcast(intent);
     }
 
@@ -120,6 +123,16 @@ public class MessageReceiver extends XGPushBaseReceiver {
      */
     @Override
     public void onNotifactionShowedResult(Context context, XGPushShowedResult xgPushShowedResult) {
+        // set app icon badge
+        try {
+            JSONObject obj = new JSONObject(xgPushShowedResult.getCustomContent());
+            int badge = obj.optInt("badge", -1);
+            if (badge >= 0) {
+                ShortcutBadger.applyCount(context, badge);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Intent intent = new Intent(Constants.ACTION_ON_NOTIFICATION_SHOWED);
         Bundle bundle = new Bundle();
         bundle.putString("content", xgPushShowedResult.getContent());

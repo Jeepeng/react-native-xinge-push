@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -23,6 +24,8 @@ import com.tencent.android.tpush.XGPushConfig;
 import com.tencent.android.tpush.XGPushManager;
 import com.tencent.android.tpush.encrypt.Rijndael;
 
+import me.leolin.shortcutbadger.ShortcutBadger;
+
 /**
  * 信鸽推送
  * Created by Jeepeng on 16/8/3.
@@ -32,6 +35,7 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     public static final String MODULE_NAME = "XGPushManager";
 
     private Context reactContext;
+    private int badge = 0;
 
     public PushModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -272,6 +276,17 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
             }
         }
         promise.resolve(params);
+    }
+
+    @ReactMethod
+    public void getApplicationIconBadgeNumber(Callback callback) {
+        callback.invoke(this.badge);
+    }
+
+    @ReactMethod
+    public void setApplicationIconBadgeNumber(int number) {
+        this.badge = number;
+        ShortcutBadger.applyCount(this.reactContext, number);
     }
 
     @Override

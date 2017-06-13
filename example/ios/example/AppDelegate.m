@@ -33,7 +33,6 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   // 统计从推送打开的设备
-  NSLog(@"%@",launchOptions);
   [XGPushManager handleLaunching:launchOptions successCallback:^{
     NSLog(@"[XGPush] Handle launching success");
   } errorCallback:^{

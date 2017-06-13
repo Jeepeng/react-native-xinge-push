@@ -89,15 +89,11 @@ class XGPush {
   }
   
   static setApplicationIconBadgeNumber(number) {
-    if (Platform.OS === 'ios') {
-      XGPushManager.setApplicationIconBadgeNumber(number);
-    }
+    XGPushManager.setApplicationIconBadgeNumber(number);
   }
   
   static getApplicationIconBadgeNumber(callback) {
-    if (Platform.OS === 'ios') {
-      XGPushManager.getApplicationIconBadgeNumber(callback);
-    }
+    XGPushManager.getApplicationIconBadgeNumber(callback);
   }
   
   static checkPermissions(callback) {
