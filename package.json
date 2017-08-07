@@ -1,6 +1,6 @@
 {
   "name": "react-native-xinge-push",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Xinge push for react-native",
   "main": "index.js",
   "scripts": {

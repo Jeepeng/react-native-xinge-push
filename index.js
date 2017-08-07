@@ -41,7 +41,7 @@ class XGPush {
   
   static register(account) {
     if (Platform.OS === 'ios') {
-      XGPushManager.setAccount(account);
+      !!account && XGPushManager.setAccount(account);
       return XGPushManager.requestPermissions({
         alert: true,
         badge: true,
