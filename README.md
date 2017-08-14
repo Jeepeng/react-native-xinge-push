@@ -32,9 +32,7 @@ react-native link react-native-xinge-push
       </intent-filter>
   </receiver>
 
-  <!-- 【可选】APP实现的Receiver，用于接收消息透传和操作结果的回调，请根据需要添加 -->
-  <!-- YOUR_PACKAGE_PATH.CustomPushReceiver需要改为自己的Receiver： -->
-  <receiver android:name="com.qq.xgdemo.receiver.MessageReceiver"
+  <receiver android:name="com.jeepeng.react.xgpush.receiver.MessageReceiver"
       android:exported="true" >
       <intent-filter>
           <!-- 接收消息透传 -->
@@ -78,17 +76,17 @@ react-native link react-native-xinge-push
   <!-- 【必须】 【注意】authorities修改为 包名.AUTH_XGPUSH, 如demo的包名为：com.qq.xgdemo-->
   <provider
       android:name="com.tencent.android.tpush.XGPushProvider"
-      android:authorities="com.qq.xgdemo.AUTH_XGPUSH"
+      android:authorities="您的包名.AUTH_XGPUSH"
       android:exported="true"/>
   <!-- 【必须】 【注意】authorities修改为 包名.TPUSH_PROVIDER, 如demo的包名为：com.qq.xgdemo-->
   <provider
       android:name="com.tencent.android.tpush.SettingsContentProvider"
-      android:authorities="com.qq.xgdemo.TPUSH_PROVIDER"
+      android:authorities="您的包名.TPUSH_PROVIDER"
       android:exported="false" />
   <!-- 【必须】 【注意】authorities修改为 包名.TENCENT.MID.V3, 如demo的包名为：com.qq.xgdemo-->
   <provider
       android:name="com.tencent.mid.api.MidProvider"
-      android:authorities="com.qq.xgdemo.TENCENT.MID.V3"
+      android:authorities="您的包名.TENCENT.MID.V3"
       android:exported="true" >
   </provider>
 
