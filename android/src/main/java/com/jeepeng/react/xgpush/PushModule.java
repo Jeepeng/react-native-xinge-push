@@ -126,6 +126,33 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     }
 
     /**
+     * 获取设备的token，只有注册成功才能获取到正常的结果
+     * @param promise
+     */
+    @ReactMethod
+    public void getToken(Promise promise) {
+        promise.resolve(XGPushConfig.getToken(this.reactContext));
+    }
+
+    /**
+     * 设置上报通知栏是否关闭 默认打开
+     * @param debugMode
+     */
+    @ReactMethod
+    public void setReportNotificationStatusEnable(boolean debugMode) {
+        XGPushConfig.setReportNotificationStatusEnable(this.reactContext, debugMode);
+    }
+
+    /**
+     * 设置上报APP 列表，用于智能推送 默认打开
+     * @param debugMode
+     */
+    @ReactMethod
+    public void setReportApplistEnable(boolean debugMode) {
+        XGPushConfig.setReportApplistEnable(this.reactContext, debugMode);
+    }
+
+    /**
      * 初始化
      * @param accessId
      * @param accessKey
@@ -174,7 +201,7 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
      * @param promise
      */
     @ReactMethod
-    public void unRegisterPush(final Promise promise) {
+    public void unregisterPush(final Promise promise) {
         XGPushManager.unregisterPush(this.reactContext, new XGIOperateCallback() {
             @Override
             public void onSuccess(Object data, int flag) {
