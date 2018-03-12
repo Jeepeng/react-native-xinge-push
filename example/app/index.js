@@ -26,23 +26,24 @@ class Example extends Component {
     };
     this._enableDebug = this._enableDebug.bind(this);
     this._isEnableDebug = this._isEnableDebug.bind(this);
-    
+
     // 初始化推送
     this.initPush();
   }
 
-  async initPush() {
-    let accessId;
-    let accessKey;
-    if(Platform.OS === 'ios') {
-      accessId = 1111111111; // 请将1111111111修改为APP的AccessId，10位数字
-      accessKey = "YOUR_ACCESS_KEY"; // 请将YOUR_ACCESS_KEY修改为APP的AccessKey
-    } else {
-      accessId = 2222222222;
-      accessKey = "YOUR_ACCESS_KEY";
-    }
+  initPush() {
     // 初始化
-    XGPush.init(accessId, accessKey);
+    if(Platform.OS === 'android') {
+      // 请将1111111111修改为APP的AccessId，10位数字
+      // 请将YOUR_ACCESS_KEY修改为APP的AccessKey
+      XGPush.init(2100209996, 'AHW931HVZ42A');
+    } else {
+      // 请将1111111111修改为APP的AccessId，10位数字
+      // 请将YOUR_ACCESS_KEY修改为APP的AccessKey
+      XGPush.init(1111111111, 'YOUR_ACCESS_KEY_IOS');
+    }
+    XGPush.enableOtherPush();
+    XGPush.setHuaweiDebug(true);
 
     // 注册
     XGPush.register('jeepeng')
@@ -54,19 +55,19 @@ class Example extends Component {
         console.log(err);
       });
   }
-  
+
   componentDidMount() {
     XGPush.addEventListener('register', this._onRegister);
     XGPush.addEventListener('message', this._onMessage);
     XGPush.addEventListener('notification', this._onNotification);
   }
-  
+
   componentWillUnmount() {
     XGPush.removeEventListener('register', this._onRegister);
     XGPush.removeEventListener('message', this._onMessage);
     XGPush.removeEventListener('notification', this._onNotification);
   }
-  
+
   /**
    * 注册成功
    * @param deviceToken
@@ -77,7 +78,7 @@ class Example extends Component {
     // 在ios中，register方法是向apns注册，如果要使用信鸽推送，得到deviceToken后还要向信鸽注册
     XGPush.registerForXG(deviceToken);
   }
-  
+
   /**
    * 透传消息到达
    * @param message
@@ -86,7 +87,7 @@ class Example extends Component {
   _onMessage(message) {
     alert('收到透传消息: ' + message.content);
   }
-  
+
   /**
    * 通知到达
    * @param notification
@@ -99,7 +100,7 @@ class Example extends Component {
       alert('app处于前台时收到通知' + JSON.stringify(notification));
     }
   }
-  
+
   /**
    * 获取初始通知（点击通知后）
    * @private
@@ -109,11 +110,11 @@ class Example extends Component {
       alert(JSON.stringify(result));
     });
   }
-  
+
   _enableDebug() {
     XGPush.enableDebug(!this.state.isDebug);
   }
-  
+
   _isEnableDebug() {
     XGPush.isEnableDebug().then(result => {
       this.setState({
@@ -122,11 +123,11 @@ class Example extends Component {
       alert(result);
     });
   }
-  
+
   _setApplicationIconBadgeNumber(number = 0) {
     XGPush.setApplicationIconBadgeNumber(number);
   }
-  
+
   _getApplicationIconBadgeNumber() {
     XGPush.getApplicationIconBadgeNumber((number) => alert(number));
   }
@@ -168,6 +169,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 20,
   },
   list: {
     marginTop: 15,

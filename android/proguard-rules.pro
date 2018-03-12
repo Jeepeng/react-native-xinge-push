@@ -21,3 +21,13 @@
 -keep class com.tencent.android.tpush.** {* ;}
 -keep class com.tencent.mid.** {* ;}
 -keep class com.qq.taf.jce.** {*;}
+
+-ignorewarning
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.hianalytics.android.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}

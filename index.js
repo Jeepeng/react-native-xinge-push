@@ -29,16 +29,20 @@ const EventMapping = Platform.select({
 });
 
 class XGPush {
-  
+
   static init(accessId, accessKey) {
     let accessIdNum = Number(accessId);
     if (isNaN(accessIdNum)) {
       console.error(`[XGPush init] accessId is not a number!`);
     } else {
-      XGPushManager.startApp(accessIdNum, accessKey);
+      if (Platform.OS === 'ios') {
+        XGPushManager.startApp(accessIdNum, accessKey);
+      } else {
+        XGPushManager.init(accessIdNum, accessKey);
+      }
     }
   }
-  
+
   static register(account) {
     if (Platform.OS === 'ios') {
       !!account && XGPushManager.setAccount(account);
@@ -48,10 +52,14 @@ class XGPush {
         sound: true
       });
     } else {
-      return XGPushManager.registerPush(account);
+      if (account) {
+        return XGPushManager.bindAccount(account);
+      } else {
+        return XGPushManager.registerPush();
+      }
     }
   }
-  
+
   /**
    * ios only
    * @param deviceToken
@@ -66,11 +74,11 @@ class XGPush {
       });
     }
   }
-  
+
   static setTag(tagName) {
     return XGPushManager.setTag(tagName);
   }
-  
+
   static deleteTag(tagName) {
     if (Platform.OS === 'ios') {
       return XGPushManager.delTag(tagName);
@@ -78,38 +86,37 @@ class XGPush {
       return XGPushManager.deleteTag(tagName);
     }
   }
-  
+
   static unRegister() {
     if (Platform.OS === 'ios') {
       return XGPushManager.unRegisterDevice();
     } else {
-      return XGPushManager.unRegisterPush();
+      return XGPushManager.unregisterPush();
     }
-    
   }
-  
+
   static setApplicationIconBadgeNumber(number) {
     XGPushManager.setApplicationIconBadgeNumber(number);
   }
-  
+
   static getApplicationIconBadgeNumber(callback) {
     XGPushManager.getApplicationIconBadgeNumber(callback);
   }
-  
+
   static checkPermissions(callback) {
     if (Platform.OS === 'ios') {
       return XGPushManager.checkPermissions(callback);
     }
   }
-  
+
   static getInitialNotification() {
     return XGPushManager.getInitialNotification();
   }
-  
+
   static onLocalNotification(callback) {
     this.addEventListener('localNotification', callback)
   }
-  
+
   /**
    * 透传消息 Android only
    */
@@ -118,7 +125,7 @@ class XGPush {
       this.addEventListener('message', callback)
     }
   }
-  
+
   static addEventListener(eventType, callback) {
     let event = EventMapping[eventType];
     if (!event) {
@@ -134,7 +141,7 @@ class XGPush {
     });
     _handlers.set(callback, listener);
   }
-  
+
   static removeEventListener(eventType, callback) {
     if (!EventMapping[eventType]) {
       console.warn('XGPush only supports `notification`, `register` and `localNotification` events');
@@ -146,14 +153,69 @@ class XGPush {
       _handlers.delete(callback);
     }
   }
-  
+
   static enableDebug(isDebug = true) {
     XGPushManager.enableDebug(isDebug);
   }
-  
+
   static isEnableDebug() {
     return XGPushManager.isEnableDebug();
   }
+
+  /**************************** android only ************************/
+
+  /**
+   * 获取设备的token，只有注册成功才能获取到正常的结果
+   */
+  static getToken() {
+    if (Platform.OS === 'android') {
+      return XGPushManager.getToken();
+    } else {
+      return Promise.resolve();
+    }
+  }
+
+  /**
+   * 设置上报通知栏是否关闭 默认打开
+   */
+  static setReportNotificationStatusEnable() {
+    if (Platform.OS === 'android') {
+      XGPushManager.setReportNotificationStatusEnable();
+    }
+  }
+
+  /**
+   * 设置上报APP 列表，用于智能推送 默认打开
+   */
+  static setReportApplistEnable() {
+    if (Platform.OS === 'android') {
+      XGPushManager.setReportApplistEnable();
+    }
+  }
+
+  /**
+   * 打开第三方推送（在 registerPush 之前调用）
+   * @param isEnable
+   */
+  static enableOtherPush(isEnable = true) {
+    if (Platform.OS === 'android') {
+      XGPushManager.enableOtherPush(isEnable);
+    }
+  }
+
+  /**
+   * 打开华为通道debug模式
+   * @param isDebug
+   */
+  static setHuaweiDebug(isDebug = true) {
+    if (Platform.OS === 'android') {
+      XGPushManager.setHuaweiDebug(isDebug);
+    }
+  }
+
+  /**************************** ios only ************************/
+
+
 }
 
 export default XGPush;

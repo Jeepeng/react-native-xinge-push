@@ -4,18 +4,23 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
+    "test": "jest",
+    "android": "node node_modules/react-native/local-cli/cli.js run-android",
+    "ios": "node node_modules/react-native/local-cli/cli.js run-ios --simulator 'iPhone 8'",
+    "bundle-android": "react-native bundle --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle --assets-dest ./android/app/src/main/res --platform android --dev false",
+    "bundle-ios": "react-native bundle --entry-file index.js --bundle-output ./ios/main.jsbundle --assets-dest ./ios --platform ios --dev false",
+    "log-android": "react-native log-android"
   },
   "dependencies": {
-    "react": "16.0.0-alpha.6",
-    "react-native": "0.44.0",
+    "react": "^16.2.0",
+    "react-native": "^0.52.0",
     "react-native-xinge-push": "file:.."
   },
   "devDependencies": {
-    "babel-jest": "19.0.0",
-    "babel-preset-react-native": "1.9.1",
-    "jest": "19.0.2",
-    "react-test-renderer": "16.0.0-alpha.6"
+    "babel-jest": "^21.2.0",
+    "babel-preset-react-native": "^4.0.0",
+    "jest": "^21.2.1",
+    "react-test-renderer": "^16.2.0"
   },
   "jest": {
     "preset": "react-native"

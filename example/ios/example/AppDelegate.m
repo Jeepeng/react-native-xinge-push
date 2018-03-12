@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 
 #import <XGPush/XGPushManager.h>
+#import <XGPush.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 
@@ -19,7 +20,7 @@
 {
   NSURL *jsCodeLocation;
 
-  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
+  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"example"
@@ -33,52 +34,78 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   // 统计从推送打开的设备
-  [XGPushManager handleLaunching:launchOptions successCallback:^{
-    NSLog(@"[XGPush] Handle launching success");
-  } errorCallback:^{
-    NSLog(@"[XGPush] Handle launching error");
-  }];
+  [[XGPush defaultManager] reportXGNotificationInfo:launchOptions];
   return YES;
 }
 
-// Required to register for notifications
-- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
-{
-  [XGPushManager didRegisterUserNotificationSettings:notificationSettings];
-}
-// Required for the register event.
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
-  [XGPushManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+// 此方法是必须要有实现，否则SDK将无法处理应用注册的Token，推送也就不会成功
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  //    [[XGPushTokenManager defaultManager] registerDeviceToken:deviceToken]; // 此方法可以不需要调用，SDK已经在内部处理
+  NSLog(@"[XGDemo] device token is %@", [[XGPushTokenManager defaultTokenManager] deviceTokenString]);
 }
 
-// Required for the notification event. You must call the completion handler after handling the remote notification.
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-{
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  NSLog(@"[XGDemo] register APNS fail.\n[XGDemo] reason : %@", error);
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"registerDeviceFailed" object:nil];
+}
+
+
+/**
+ 收到通知的回调
+ 
+ @param application  UIApplication 实例
+ @param userInfo 推送时指定的参数
+ */
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+  NSLog(@"[XGDemo] receive Notification");
+  [[XGPush defaultManager] reportXGNotificationInfo:userInfo];
+}
+
+
+/**
+ 收到静默推送的回调
+ 
+ @param application  UIApplication 实例
+ @param userInfo 推送时指定的参数
+ @param completionHandler 完成回调
+ */
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+  NSLog(@"[XGDemo] receive slient Notification");
+  NSLog(@"[XGDemo] userinfo %@", userInfo);
   UIApplicationState state = [application applicationState];
   BOOL isClicked = (state != UIApplicationStateActive);
   NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:userInfo];
   if(isClicked) {
     remoteNotification[@"clicked"] = @YES;
+    remoteNotification[@"background"] = @YES;
   }
-  [XGPushManager didReceiveRemoteNotification:remoteNotification fetchCompletionHandler:completionHandler];
-  // 统计收到推送的设备
-  [XGPushManager handleReceiveNotification:remoteNotification successCallback:^{
-    NSLog(@"[XGPush] Handle receive success");
-  } errorCallback:^{
-    NSLog(@"[XGPush] Handle receive error");
-  }];
+  [[XGPush defaultManager] reportXGNotificationInfo:remoteNotification];
+  completionHandler(UIBackgroundFetchResultNewData);
 }
-// Required for the registrationError event.
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
-  [XGPushManager didFailToRegisterForRemoteNotificationsWithError:error];
+
+// iOS 10 新增 API
+// iOS 10 会走新 API, iOS 10 以前会走到老 API
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+// App 用户点击通知的回调
+// 无论本地推送还是远程推送都会走这个回调
+- (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+  NSLog(@"[XGDemo] click notification");
+  if ([response.actionIdentifier isEqualToString:@"xgaction001"]) {
+    NSLog(@"click from Action1");
+  } else if ([response.actionIdentifier isEqualToString:@"xgaction002"]) {
+    NSLog(@"click from Action2");
+  }
+  
+  [[XGPush defaultManager] reportXGNotificationInfo:response.notification.request.content.userInfo];
+  
+  completionHandler();
 }
-// Required for the localNotification event.
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
-{
-  [XGPushManager didReceiveLocalNotification:notification];
+
+// App 在前台弹通知需要调用这个接口
+- (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+  [[XGPush defaultManager] reportXGNotificationInfo:notification.request.content.userInfo];
+  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
 }
+#endif
 
 @end

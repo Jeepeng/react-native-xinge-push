@@ -109,91 +109,89 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
         }, intentFilter);
     }
 
+    /*****************************************************************
+     *                         XGPushManager功能类
+     * （对于本类提供的set和enable方法，要在XGPushManager接口前调用才能及时生效）
+     *****************************************************************/
+
     /**
-     * 开启logcat输出，方便debug，发布时请关闭
+     * 启动并注册APP
      */
     @ReactMethod
-    public void enableDebug(boolean isDebug) {
-        XGPushConfig.enableDebug(this.reactContext, isDebug);
+    public void registerPush(final Promise promise) {
+        XGPushManager.registerPush(this.reactContext, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object date, int flag) {
+                promise.resolve(date);
+            }
+
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                promise.reject(String.valueOf(errCode), msg);
+            }
+        });
     }
 
     /**
-     * 开启logcat输出，方便debug，发布时请关闭
-     */
-    @ReactMethod
-    public void isEnableDebug(Promise promise) {
-        promise.resolve(XGPushConfig.isEnableDebug(this.reactContext));
-    }
-
-    /**
-     * 获取设备的token，只有注册成功才能获取到正常的结果
+     * 启动并注册APP，同时绑定账号,推荐有帐号体系的APP使用
+     * （此接口会覆盖设备之前绑定过的账号，仅当前注册的账号生效）
+     * @param account
      * @param promise
      */
     @ReactMethod
-    public void getToken(Promise promise) {
-        promise.resolve(XGPushConfig.getToken(this.reactContext));
+    public void bindAccount(String account, final Promise promise) {
+        XGPushManager.bindAccount(this.reactContext, account, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object date, int flag) {
+                promise.resolve(date);
+            }
+
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                promise.reject(String.valueOf(errCode), msg);
+            }
+        });
     }
 
     /**
-     * 设置上报通知栏是否关闭 默认打开
-     * @param debugMode
+     * 启动并注册APP，同时绑定账号,推荐有帐号体系的APP使用
+     * （此接口保留之前的账号，只做增加操作，一个token下最多只能有3个账号超过限制会自动顶掉之前绑定的账号）
+     * @param account
+     * @param promise
      */
     @ReactMethod
-    public void setReportNotificationStatusEnable(boolean debugMode) {
-        XGPushConfig.setReportNotificationStatusEnable(this.reactContext, debugMode);
+    public void appendAccount(String account, final Promise promise) {
+        XGPushManager.appendAccount(this.reactContext, account, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object date, int flag) {
+                promise.resolve(date);
+            }
+
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                promise.reject(String.valueOf(errCode), msg);
+            }
+        });
     }
 
     /**
-     * 设置上报APP 列表，用于智能推送 默认打开
-     * @param debugMode
+     * 解绑指定账号
+     * @param account
+     * @param promise
      */
     @ReactMethod
-    public void setReportApplistEnable(boolean debugMode) {
-        XGPushConfig.setReportApplistEnable(this.reactContext, debugMode);
-    }
+    public void delAccount(String account, final Promise promise) {
+        XGPushManager.delAccount(this.reactContext, account, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object date, int flag) {
+                promise.resolve(date);
+            }
 
-    /**
-     * 初始化
-     * @param accessId
-     * @param accessKey
-     */
-    @ReactMethod
-    public void startApp(int accessId, String accessKey) {
-        XGPushConfig.setAccessId(this.reactContext, accessId);
-        XGPushConfig.setAccessKey(this.reactContext, accessKey);
-    }
-
-    /**
-     * 注册并绑定帐号
-     * @param account 帐号,当为'*'表示解绑
-     */
-    @ReactMethod
-    public void registerPush(String account, final Promise promise) {
-        if(account != null && !"".equals(account)) {
-            XGPushManager.registerPush(this.reactContext, account, new XGIOperateCallback() {
-                @Override
-                public void onSuccess(Object date, int flag) {
-                    promise.resolve(date);
-                }
-
-                @Override
-                public void onFail(Object data, int errCode, String msg) {
-                    promise.reject(String.valueOf(errCode), msg);
-                }
-            });
-        } else {
-            XGPushManager.registerPush(this.reactContext, new XGIOperateCallback() {
-                @Override
-                public void onSuccess(Object date, int flag) {
-                    promise.resolve(date);
-                }
-
-                @Override
-                public void onFail(Object data, int errCode, String msg) {
-                    promise.reject(String.valueOf(errCode), msg);
-                }
-            });
-        }
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                promise.reject(String.valueOf(errCode), msg);
+            }
+        });
     }
 
     /**
@@ -247,12 +245,71 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     }
 
     /**
-     * 获取token
-     * @return 成功时返回正常的token；失败时返回null或”0”
+     * 检测通知栏是否关闭
+     * @param promise
      */
     @ReactMethod
-    public String getToken() {
-        return XGPushConfig.getToken(this.reactContext);
+    public void isNotificationOpened(Promise promise) {
+        promise.resolve(XGPushManager.isNotificationOpened(this.reactContext));
+    }
+
+    /*****************************************************************
+     *                         XGPushConfig配置类
+     * （对于本类提供的set和enable方法，要在XGPushManager接口前调用才能及时生效）
+     *****************************************************************/
+
+    /**
+     * 初始化
+     * @param accessId
+     * @param accessKey
+     */
+    @ReactMethod
+    public void init(int accessId, String accessKey) {
+        XGPushConfig.setAccessId(this.reactContext, accessId);
+        XGPushConfig.setAccessKey(this.reactContext, accessKey);
+    }
+
+    /**
+     * 是否开启debug模式，即输出logcat日志重要：为保证数据的安全性，发布前必须设置为false）
+     */
+    @ReactMethod
+    public void enableDebug(boolean isDebug) {
+        XGPushConfig.enableDebug(this.reactContext, isDebug);
+    }
+
+    /**
+     * 开启logcat输出，方便debug，发布时请关闭
+     */
+    @ReactMethod
+    public void isEnableDebug(Promise promise) {
+        promise.resolve(XGPushConfig.isEnableDebug(this.reactContext));
+    }
+
+    /**
+     * 获取设备的token，只有注册成功才能获取到正常的结果
+     * @param promise
+     */
+    @ReactMethod
+    public void getToken(Promise promise) {
+        promise.resolve(XGPushConfig.getToken(this.reactContext));
+    }
+
+    /**
+     * 设置上报通知栏是否关闭 默认打开
+     * @param debugMode
+     */
+    @ReactMethod
+    public void setReportNotificationStatusEnable(boolean debugMode) {
+        XGPushConfig.setReportNotificationStatusEnable(this.reactContext, debugMode);
+    }
+
+    /**
+     * 设置上报APP 列表，用于智能推送 默认打开
+     * @param debugMode
+     */
+    @ReactMethod
+    public void setReportApplistEnable(boolean debugMode) {
+        XGPushConfig.setReportApplistEnable(this.reactContext, debugMode);
     }
 
     @ReactMethod
@@ -281,6 +338,20 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     @ReactMethod
     public String getAccessKey() {
         return XGPushConfig.getAccessKey(this.reactContext);
+    }
+
+    /**
+     * 第三方推送开关
+     * 需要在 registerPush 之前调用
+     */
+    @ReactMethod
+    public void enableOtherPush(boolean isEnable) {
+        XGPushConfig.enableOtherPush(this.reactContext, isEnable);
+    }
+
+    @ReactMethod
+    public void setHuaweiDebug(boolean isDebug) {
+        XGPushConfig.setHuaweiDebug(isDebug);
     }
 
     @ReactMethod
