@@ -27,6 +27,23 @@ react-native link react-native-xinge-push
 ### Android
 待更新
 
+#### 华为推送通道集成指南
+1. 确认已在信鸽管理台中「应用配置-厂商&海外通道」中填写相关的应用信息。通常，相关配置将在1个小时后生效，请您耐心等待，在生效后再进行下一个步骤
+2. 将集成好的App（测试版本）安装在测试机上，并且运行App
+3. 保持App在前台运行，尝试对设备进行单推/全推
+4. 如果应用收到消息，将App退到后台，并且杀掉所有App进程
+5. 再次进行单推/全推，如果能够收到推送，则表明厂商通道集成成功
+
+###### 注意事项
+如果在EMUI 8.0（Android 8）上，出现发通知成功但通知栏不显示的情况，并在Logcat看到以下错误：
+```
+E/NotificationService: No Channel found for pkg=com.jeepeng.push, channelId=null, id=995033369, tag=null, opPkg=com.huawei.android.pushagent, callingUid=10060, userId=0, incomingUserId=0, notificationUid=10261, notification=Notification(channel=null pri=0 contentView=null vibrate=null sound=default tick defaults=0x1 flags=0x10 color=0x00000000 vis=PRIVATE)
+```
+
+需要将`targetSdkVersion`[降到25](https://stackoverflow.com/questions/45668079/notificationchannel-issue-in-android-o)
+
+
+
 ### iOS
 AppDelegate.m:
 
@@ -76,182 +93,5 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 ```
 
 ## Example
-
-```js
-
-import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-  TouchableNativeFeedback,
-  TouchableHighlight
-} from 'react-native';
-import XGPush from 'react-native-xinge-push';
-
-const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableHighlight;
-
-class Example extends Component {
-
-  constructor() {
-    super();
-    this.state = {
-      isDebug: false
-    };
-    this._enableDebug = this._enableDebug.bind(this);
-    this._isEnableDebug = this._isEnableDebug.bind(this);
-
-    // 初始化推送
-    this.initPush();
-  }
-
-  async initPush() {
-    let accessId;
-    let accessKey;
-    if(Platform.OS === 'ios') {
-      accessId = 1111111111; // 请将1111111111修改为APP的AccessId，10位数字
-      accessKey = "YOUR_ACCESS_KEY"; // 请将YOUR_ACCESS_KEY修改为APP的AccessKey
-    } else {
-      accessId = 2222222222;
-      accessKey = "YOUR_ACCESS_KEY";
-    }
-    // 初始化
-    XGPush.init(accessId, accessKey);
-
-    // 注册
-    XGPush.register('jeepeng')
-      .then(result => result)
-      .catch(err => {
-        console.log(err);
-      });
-  }
-
-  componentDidMount() {
-    XGPush.addEventListener('register', this._onRegister);
-    XGPush.addEventListener('message', this._onMessage);
-    XGPush.addEventListener('notification', this._onNotification);
-  }
-
-  componentWillUnmount() {
-    XGPush.removeEventListener('register', this._onRegister);
-    XGPush.removeEventListener('message', this._onMessage);
-    XGPush.removeEventListener('notification', this._onNotification);
-  }
-
-  /**
-   * 注册成功
-   * @param deviceToken
-   * @private
-   */
-  _onRegister(deviceToken) {
-    alert('onRegister: ' + deviceToken);
-    // 在ios中，register方法是向apns注册，如果要使用信鸽推送，得到deviceToken后还要向信鸽注册
-    XGPush.registerForXG(deviceToken);
-  }
-
-  /**
-   * 透传消息到达
-   * @param message
-   * @private
-   */
-  _onMessage(message) {
-    alert('收到透传消息: ' + message.content);
-  }
-
-  /**
-   * 通知到达
-   * @param notification
-   * @private
-   */
-  _onNotification(notification) {
-    alert(JSON.stringify(notification));
-  }
-
-  /**
-   * 获取初始通知（点击通知后）
-   * @private
-   */
-  _getInitialNotification() {
-    XGPush.getInitialNotification().then((result) => {
-      alert(JSON.stringify(result));
-    });
-  }
-
-  _enableDebug() {
-    XGPush.enableDebug(!this.state.isDebug);
-  }
-
-  _isEnableDebug() {
-    XGPush.isEnableDebug().then(result => {
-      this.setState({
-        isDebug: result
-      });
-      alert(result);
-    });
-  }
-
-  _setApplicationIconBadgeNumber(number = 0) {
-    XGPush.setApplicationIconBadgeNumber(number);
-  }
-
-  _getApplicationIconBadgeNumber() {
-    XGPush.getApplicationIconBadgeNumber((number) => alert(number));
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <Touchable underlayColor="#ddd" onPress={this._getInitialNotification}>
-          <View style={styles.item}>
-            <Text>getInitialNotification</Text>
-          </View>
-        </Touchable>
-        <Touchable onPress={ ()=> { this._enableDebug() }} underlayColor="#ddd">
-          <View style={styles.item}>
-            <Text>enableDebug</Text>
-          </View>
-        </Touchable>
-        <Touchable onPress={ ()=> { this._isEnableDebug() }} underlayColor="#ddd">
-          <View style={styles.item}>
-            <Text>isEnableDebug</Text>
-          </View>
-        </Touchable>
-        <Touchable onPress={ ()=> { this._setApplicationIconBadgeNumber(99) }} underlayColor="#ddd">
-          <View style={styles.item}>
-            <Text>setApplicationIconBadgeNumber: 99</Text>
-          </View>
-        </Touchable>
-        <Touchable onPress={ ()=> { this._getApplicationIconBadgeNumber() }} underlayColor="#ddd">
-          <View style={styles.item}>
-            <Text>getApplicationIconBadgeNumber</Text>
-          </View>
-        </Touchable>
-      </View>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  list: {
-    marginTop: 15,
-    backgroundColor: '#fff',
-  },
-  item: {
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#efefef'
-  },
-});
-
-export default Example;
-
-```
 
 see `example` folder for more details
