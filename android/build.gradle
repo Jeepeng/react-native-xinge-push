@@ -30,4 +30,6 @@ dependencies {
     compile 'com.tencent.wup:wup:1.0.0.E-release'
     compile 'com.tencent.mid:mid:4.0.6-release'
     compile 'com.tencent.xinge:xghw:2.5.2.300-release'
+    compile 'com.tencent.xinge:mipush:3.2.2-release'
+    compile 'com.tencent.xinge:xgmz:3.2.2-release'
 }

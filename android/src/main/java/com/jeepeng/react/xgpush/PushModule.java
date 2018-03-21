@@ -355,6 +355,19 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     }
 
     @ReactMethod
+    public void initXiaomi(String appId, String appKey) {
+        XGPushConfig.setMiPushAppId(this.reactContext, appId);
+        XGPushConfig.setMiPushAppKey(this.reactContext, appKey);
+    }
+
+    @ReactMethod
+    public void initMeizu(String appId, String appKey) {
+        //设置魅族APPID和APPKEY
+        XGPushConfig.setMzPushAppId(this.reactContext, appId);
+        XGPushConfig.setMzPushAppKey(this.reactContext, appKey);
+    }
+
+    @ReactMethod
     public void getInitialNotification(Promise promise) {
         WritableMap params = Arguments.createMap();
         Activity activity = getCurrentActivity();

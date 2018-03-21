@@ -42,8 +42,19 @@ class Example extends Component {
       // 请将YOUR_ACCESS_KEY修改为APP的AccessKey
       XGPush.init(1111111111, 'YOUR_ACCESS_KEY_IOS');
     }
-    XGPush.enableOtherPush();
+
     XGPush.setHuaweiDebug(true);
+
+    // 小米
+    XGPush.initXiaomi('appId', 'appKey');
+
+    // 魅族
+    XGPush.initMeizu('appId', 'appKey');
+
+    // 华为请到 build.gradle manifestPlaceholders 配置
+
+    // 第三方推送开关（华为、小米、魅族）
+    XGPush.enableOtherPush(true);
 
     // 注册
     XGPush.register('jeepeng')

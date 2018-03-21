@@ -213,6 +213,18 @@ class XGPush {
     }
   }
 
+  static initXiaomi(appId, appKey) {
+    if (Platform.OS === 'android') {
+      XGPushManager.initXiaomi(appId, appKey);
+    }
+  }
+
+  static initMeizu(appId, appKey) {
+    if (Platform.OS === 'android') {
+      XGPushManager.initMeizu(appId, appKey);
+    }
+  }
+
   /**************************** ios only ************************/
 
 
