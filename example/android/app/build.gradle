@@ -109,7 +109,7 @@ android {
         manifestPlaceholders = [
             XG_ACCESS_ID: "2100209996",
             XG_ACCESS_KEY: "AHW931HVZ42A",
-            HW_APPID: "100225811"
+            HW_APPID: "100225811",
         ]
     }
     splits {

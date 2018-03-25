@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '26.0.3'
 
     defaultConfig {
         minSdkVersion 16
@@ -12,6 +12,11 @@ android {
     }
     defaultConfig {
         consumerProguardFiles 'proguard-rules.pro'
+        manifestPlaceholders = [
+                XG_ACCESS_ID: "",
+                XG_ACCESS_KEY: "",
+                HW_APPID: "",
+        ]
     }
 
     sourceSets {
