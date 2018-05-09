@@ -57,12 +57,16 @@ class XGPush {
   }
 
   static setTag(tagName) {
-    return XGPushManager.setTag(tagName);
+    if (Platform.OS === 'ios') {
+      return XGPushManager.bindWithTag(tagName);
+    } else {
+      return XGPushManager.setTag(tagName);
+    }
   }
 
   static deleteTag(tagName) {
     if (Platform.OS === 'ios') {
-      return XGPushManager.delTag(tagName);
+      return XGPushManager.unbindWithTag(tagName);
     } else {
       return XGPushManager.deleteTag(tagName);
     }
@@ -70,7 +74,7 @@ class XGPush {
 
   static unRegister() {
     if (Platform.OS === 'ios') {
-      return XGPushManager.unRegisterDevice();
+      return XGPushManager.stopXGNotification();
     } else {
       return XGPushManager.unregisterPush();
     }
@@ -153,21 +157,29 @@ class XGPush {
    * 获取设备的token，只有注册成功才能获取到正常的结果
    */
   static getToken() {
-    return XGPushManager.getToken();
+    if (Platform.OS === 'android') {
+      return XGPushManager.getToken(isEnable);
+    } else {
+      return Promise.resolve();
+    }
   }
 
   /**
    * 设置上报通知栏是否关闭 默认打开
    */
   static setReportNotificationStatusEnable() {
-    XGPushManager.setReportNotificationStatusEnable();
+    if (Platform.OS === 'android') {
+      XGPushManager.setReportNotificationStatusEnable();
+    }
   }
 
   /**
    * 设置上报APP 列表，用于智能推送 默认打开
    */
   static setReportApplistEnable() {
-    XGPushManager.setReportApplistEnable();
+    if (Platform.OS === 'android') {
+      XGPushManager.setReportApplistEnable();
+    }
   }
 
   /**

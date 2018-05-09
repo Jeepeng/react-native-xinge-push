@@ -555,7 +555,7 @@ RCT_EXPORT_METHOD(deviceNotificationIsAllowed:(nonnull void (^)(BOOL isAllowed))
 }
 
 /**
- 绑定标签
+ * 绑定标签，一个设备可以绑定多个标签（多次调用）
  */
 RCT_EXPORT_METHOD(bindWithTag:tag)
 {
