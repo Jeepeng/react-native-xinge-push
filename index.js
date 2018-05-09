@@ -36,7 +36,7 @@ class XGPush {
       console.error(`[XGPush init] accessId is not a number!`);
     } else {
       if (Platform.OS === 'ios') {
-        XGPushManager.startApp(accessIdNum, accessKey);
+        XGPushManager.startXGWithAppID(accessIdNum, accessKey);
       } else {
         XGPushManager.init(accessIdNum, accessKey);
       }
@@ -45,33 +45,14 @@ class XGPush {
 
   static register(account) {
     if (Platform.OS === 'ios') {
-      !!account && XGPushManager.setAccount(account);
+      !!account && XGPushManager.bindWithAccount(account);
       return XGPushManager.requestPermissions({
         alert: true,
         badge: true,
         sound: true
       });
     } else {
-      if (account) {
-        return XGPushManager.bindAccount(account);
-      } else {
-        return XGPushManager.registerPush();
-      }
-    }
-  }
-
-  /**
-   * ios only
-   * @param deviceToken
-   * @returns {*}
-   */
-  static registerForXG(deviceToken) {
-    if (Platform.OS === 'ios') {
-      return XGPushManager.registerDevice(deviceToken, null);
-    } else {
-      return new Promise((resolve, reject) => {
-        //reject('ios only');
-      });
+      return XGPushManager.registerPush(account);
     }
   }
 
@@ -155,7 +136,11 @@ class XGPush {
   }
 
   static enableDebug(isDebug = true) {
-    XGPushManager.enableDebug(isDebug);
+    if (Platform.OS === 'ios') {
+      XGPushManager.setEnableDebug(isDebug);
+    } else {
+      XGPushManager.enableDebug(isDebug);
+    }
   }
 
   static isEnableDebug() {
@@ -168,29 +153,21 @@ class XGPush {
    * 获取设备的token，只有注册成功才能获取到正常的结果
    */
   static getToken() {
-    if (Platform.OS === 'android') {
-      return XGPushManager.getToken();
-    } else {
-      return Promise.resolve();
-    }
+    return XGPushManager.getToken();
   }
 
   /**
    * 设置上报通知栏是否关闭 默认打开
    */
   static setReportNotificationStatusEnable() {
-    if (Platform.OS === 'android') {
-      XGPushManager.setReportNotificationStatusEnable();
-    }
+    XGPushManager.setReportNotificationStatusEnable();
   }
 
   /**
    * 设置上报APP 列表，用于智能推送 默认打开
    */
   static setReportApplistEnable() {
-    if (Platform.OS === 'android') {
-      XGPushManager.setReportApplistEnable();
-    }
+    XGPushManager.setReportApplistEnable();
   }
 
   /**

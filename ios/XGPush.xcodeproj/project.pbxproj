@@ -28,7 +28,6 @@
 		C50FF0241D54262A00CEF3D0 /* libXGPush.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libXGPush.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		C50FF0271D54262A00CEF3D0 /* XGPushManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XGPushManager.h; sourceTree = "<group>"; };
 		C50FF0291D54262A00CEF3D0 /* XGPushManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XGPushManager.m; sourceTree = "<group>"; };
-		C5D48E301D5428D2004BD09A /* XGSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XGSetting.h; path = SDK/XGSetting.h; sourceTree = "<group>"; };
 		C5D48E311D5428D2004BD09A /* XGPush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XGPush.h; path = SDK/XGPush.h; sourceTree = "<group>"; };
 		C5D48E331D5428F4004BD09A /* libXG-SDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libXG-SDK.a"; path = "SDK/libXG-SDK.a"; sourceTree = "<group>"; };
 		C5D48E761D54731F004BD09A /* libReact.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libReact.a; path = "../../react-native/React/build/Debug-iphoneos/libReact.a"; sourceTree = "<group>"; };
@@ -76,7 +75,6 @@
 		C5D48E2F1D5428C1004BD09A /* SDK */ = {
 			isa = PBXGroup;
 			children = (
-				C5D48E301D5428D2004BD09A /* XGSetting.h */,
 				C5D48E311D5428D2004BD09A /* XGPush.h */,
 			);
 			name = SDK;
@@ -191,7 +189,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -229,7 +227,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

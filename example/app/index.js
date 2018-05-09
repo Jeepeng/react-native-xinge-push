@@ -40,7 +40,7 @@ class Example extends Component {
     } else {
       // 请将1111111111修改为APP的AccessId，10位数字
       // 请将YOUR_ACCESS_KEY修改为APP的AccessKey
-      XGPush.init(1111111111, 'YOUR_ACCESS_KEY_IOS');
+      XGPush.init(2200209997, 'ITD46N87JA4K');
     }
 
     XGPush.setHuaweiDebug(true);
@@ -60,7 +60,6 @@ class Example extends Component {
     XGPush.register('jeepeng')
       .then(result => {
         // do something
-        // 或者在 onRegister 里处理，效果一样
       })
       .catch(err => {
         console.log(err);
@@ -86,8 +85,6 @@ class Example extends Component {
    */
   _onRegister(deviceToken) {
     alert('onRegister: ' + deviceToken);
-    // 在ios中，register方法是向apns注册，如果要使用信鸽推送，得到deviceToken后还要向信鸽注册
-    XGPush.registerForXG(deviceToken);
   }
 
   /**
