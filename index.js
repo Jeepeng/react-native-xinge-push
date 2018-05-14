@@ -36,7 +36,7 @@ class XGPush {
       console.error(`[XGPush init] accessId is not a number!`);
     } else {
       if (Platform.OS === 'ios') {
-        XGPushManager.startApp(accessIdNum, accessKey);
+        XGPushManager.startXGWithAppID(accessIdNum, accessKey);
       } else {
         XGPushManager.init(accessIdNum, accessKey);
       }
@@ -45,43 +45,28 @@ class XGPush {
 
   static register(account) {
     if (Platform.OS === 'ios') {
-      !!account && XGPushManager.setAccount(account);
+      !!account && XGPushManager.bindWithAccount(account);
       return XGPushManager.requestPermissions({
         alert: true,
         badge: true,
         sound: true
       });
     } else {
-      if (account) {
-        return XGPushManager.bindAccount(account);
-      } else {
-        return XGPushManager.registerPush();
-      }
-    }
-  }
-
-  /**
-   * ios only
-   * @param deviceToken
-   * @returns {*}
-   */
-  static registerForXG(deviceToken) {
-    if (Platform.OS === 'ios') {
-      return XGPushManager.registerDevice(deviceToken, null);
-    } else {
-      return new Promise((resolve, reject) => {
-        //reject('ios only');
-      });
+      return XGPushManager.registerPush(account);
     }
   }
 
   static setTag(tagName) {
-    return XGPushManager.setTag(tagName);
+    if (Platform.OS === 'ios') {
+      return XGPushManager.bindWithTag(tagName);
+    } else {
+      return XGPushManager.setTag(tagName);
+    }
   }
 
   static deleteTag(tagName) {
     if (Platform.OS === 'ios') {
-      return XGPushManager.delTag(tagName);
+      return XGPushManager.unbindWithTag(tagName);
     } else {
       return XGPushManager.deleteTag(tagName);
     }
@@ -89,7 +74,7 @@ class XGPush {
 
   static unRegister() {
     if (Platform.OS === 'ios') {
-      return XGPushManager.unRegisterDevice();
+      return XGPushManager.stopXGNotification();
     } else {
       return XGPushManager.unregisterPush();
     }
@@ -155,7 +140,11 @@ class XGPush {
   }
 
   static enableDebug(isDebug = true) {
-    XGPushManager.enableDebug(isDebug);
+    if (Platform.OS === 'ios') {
+      XGPushManager.setEnableDebug(isDebug);
+    } else {
+      XGPushManager.enableDebug(isDebug);
+    }
   }
 
   static isEnableDebug() {
@@ -169,7 +158,7 @@ class XGPush {
    */
   static getToken() {
     if (Platform.OS === 'android') {
-      return XGPushManager.getToken();
+      return XGPushManager.getToken(isEnable);
     } else {
       return Promise.resolve();
     }

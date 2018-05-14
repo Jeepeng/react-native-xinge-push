@@ -7,7 +7,6 @@
 
 #import "XGPushManager.h"
 #import "XGPush.h"
-#import "XGSetting.h"
 
 #import <UserNotifications/UserNotifications.h>
 
@@ -16,13 +15,14 @@
 #import <React/RCTEventDispatcher.h>
 #import <React/RCTUtils.h>
 
-NSString *const RCTLocalNotificationReceived = @"LocalNotificationReceived";
 NSString *const RCTRemoteNotificationReceived = @"RemoteNotificationReceived";
-NSString *const RCTRemoteNotificationsRegistered = @"RemoteNotificationsRegistered";
-NSString *const RCTRegisterUserNotificationSettings = @"RegisterUserNotificationSettings";
 
-NSString *const RCTErrorUnableToRequestPermissions = @"E_UNABLE_TO_REQUEST_PERMISSIONS";
-NSString *const RCTErrorRemoteNotificationRegistrationFailed = @"E_FAILED_TO_REGISTER_FOR_REMOTE_NOTIFICATIONS";
+static NSString *const kLocalNotificationReceived = @"LocalNotificationReceived";
+static NSString *const kRemoteNotificationsRegistered = @"RemoteNotificationsRegistered";
+static NSString *const kRegisterUserNotificationSettings = @"RegisterUserNotificationSettings";
+static NSString *const kRemoteNotificationRegistrationFailed = @"RemoteNotificationRegistrationFailed";
+
+static NSString *const kErrorUnableToRequestPermissions = @"E_UNABLE_TO_REQUEST_PERMISSIONS";
 
 #if !TARGET_OS_TV
 @implementation RCTConvert (NSCalendarUnit)
@@ -41,7 +41,7 @@ RCT_ENUM_CONVERTER(NSCalendarUnit,
 
 @end
 
-@interface XGPushManager ()
+@interface XGPushManager ()<XGPushDelegate, XGPushTokenManagerDelegate>
 @property (nonatomic, strong) NSMutableDictionary *remoteNotificationCallbacks;
 @end
 
@@ -50,16 +50,20 @@ RCT_ENUM_CONVERTER(NSCalendarUnit,
 + (UILocalNotification *)UILocalNotification:(id)json
 {
   NSDictionary<NSString *, id> *details = [self NSDictionary:json];
+  BOOL isSilent = [RCTConvert BOOL:details[@"isSilent"]];
   UILocalNotification *notification = [UILocalNotification new];
+  notification.alertTitle = [RCTConvert NSString:details[@"alertTitle"]];
   notification.fireDate = [RCTConvert NSDate:details[@"fireDate"]] ?: [NSDate date];
   notification.alertBody = [RCTConvert NSString:details[@"alertBody"]];
   notification.alertAction = [RCTConvert NSString:details[@"alertAction"]];
-  notification.soundName = [RCTConvert NSString:details[@"soundName"]] ?: UILocalNotificationDefaultSoundName;
   notification.userInfo = [RCTConvert NSDictionary:details[@"userInfo"]];
   notification.category = [RCTConvert NSString:details[@"category"]];
   notification.repeatInterval = [RCTConvert NSCalendarUnit:details[@"repeatInterval"]];
   if (details[@"applicationIconBadgeNumber"]) {
     notification.applicationIconBadgeNumber = [RCTConvert NSInteger:details[@"applicationIconBadgeNumber"]];
+  }
+  if (!isSilent) {
+    notification.soundName = [RCTConvert NSString:details[@"soundName"]] ?: UILocalNotificationDefaultSoundName;
   }
   return notification;
 }
@@ -136,23 +140,23 @@ RCT_EXPORT_MODULE()
 {
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleLocalNotificationReceived:)
-                                               name:RCTLocalNotificationReceived
+                                               name:kLocalNotificationReceived
                                              object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleRemoteNotificationReceived:)
                                                name:RCTRemoteNotificationReceived
                                              object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(handleRegisterUserNotificationSettings:)
+                                               name:kRegisterUserNotificationSettings
+                                             object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleRemoteNotificationsRegistered:)
-                                               name:RCTRemoteNotificationsRegistered
+                                               name:kRemoteNotificationsRegistered
                                              object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleRemoteNotificationRegistrationError:)
-                                               name:RCTErrorRemoteNotificationRegistrationFailed
-                                             object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(handleRegisterUserNotificationSettings:)
-                                               name:RCTRegisterUserNotificationSettings
+                                               name:kRemoteNotificationRegistrationFailed
                                              object:nil];
 }
 
@@ -173,7 +177,7 @@ RCT_EXPORT_MODULE()
 {
   if ([UIApplication instancesRespondToSelector:@selector(registerForRemoteNotifications)]) {
     [RCTSharedApplication() registerForRemoteNotifications];
-    [[NSNotificationCenter defaultCenter] postNotificationName:RCTRegisterUserNotificationSettings
+    [[NSNotificationCenter defaultCenter] postNotificationName:kRegisterUserNotificationSettings
                                                         object:self
                                                       userInfo:@{@"notificationSettings": notificationSettings}];
   }
@@ -187,14 +191,14 @@ RCT_EXPORT_MODULE()
   for (NSUInteger i = 0; i < deviceTokenLength; i++) {
     [hexString appendFormat:@"%02x", bytes[i]];
   }
-  [[NSNotificationCenter defaultCenter] postNotificationName:RCTRemoteNotificationsRegistered
+  [[NSNotificationCenter defaultCenter] postNotificationName:kRemoteNotificationsRegistered
                                                       object:self
                                                     userInfo:@{@"deviceToken" : [hexString copy]}];
 }
 
 + (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:RCTErrorRemoteNotificationRegistrationFailed
+  [[NSNotificationCenter defaultCenter] postNotificationName:kRemoteNotificationRegistrationFailed
                                                       object:self
                                                     userInfo:@{@"error": error}];
 }
@@ -218,7 +222,7 @@ RCT_EXPORT_MODULE()
 
 + (void)didReceiveLocalNotification:(UILocalNotification *)notification
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:RCTLocalNotificationReceived
+  [[NSNotificationCenter defaultCenter] postNotificationName:kLocalNotificationReceived
                                                       object:self
                                                     userInfo:RCTFormatLocalNotification(notification)];
 }
@@ -276,6 +280,8 @@ RCT_EXPORT_MODULE()
   };
 
   _requestPermissionsResolveBlock(notificationTypes);
+  // Clean up listener added in requestPermissions
+  [self removeListeners:1];
   _requestPermissionsResolveBlock = nil;
 }
 
@@ -310,7 +316,7 @@ RCT_EXPORT_METHOD(requestPermissions:(NSDictionary *)permissions
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
   if (RCTRunningInAppExtension()) {
-    reject(RCTErrorUnableToRequestPermissions, nil, RCTErrorWithMessage(@"Requesting push notifications is currently unavailable in an app extension"));
+    reject(kErrorUnableToRequestPermissions, nil, RCTErrorWithMessage(@"Requesting push notifications is currently unavailable in an app extension"));
     return;
   }
 
@@ -319,6 +325,8 @@ RCT_EXPORT_METHOD(requestPermissions:(NSDictionary *)permissions
     return;
   }
 
+  // Add a listener to make sure that startObserving has been called
+  [self addListener:@"remoteNotificationsRegistered"];
   _requestPermissionsResolveBlock = resolve;
 
   UIUserNotificationType types = UIUserNotificationTypeNone;
@@ -459,33 +467,30 @@ RCT_EXPORT_METHOD(getDeliveredNotifications:(RCTResponseSenderBlock)callback)
 
 /********************* 信鸽 *********************/
 
-/**
- 在didFinishLaunchingWithOptions中调用，用于推送反馈.(app没有运行时，点击推送启动时)
- 
- @param launchOptions didFinishLaunchingWithOptions中的userinfo参数
- @param successCallback 成功回调
- @param errorCallback 失败回调
- */
-+(void)handleLaunching:(nonnull NSDictionary *)launchOptions successCallback:(nullable void (^)(void)) successCallback errorCallback:(nullable void (^)(void)) errorCallback
-{
-    [XGPush handleLaunching:launchOptions successCallback:successCallback errorCallback:errorCallback];
+#pragma mark - XGPushDelegate
+- (void)xgPushDidFinishStart:(BOOL)isSuccess error:(NSError *)error {
+    NSLog(@"%s, 启动信鸽服务 %@, error %@", __FUNCTION__, isSuccess?@"成功":@"失败", error);
 }
 
-/**
- * 在didReceiveRemoteNotification中调用，用于推送反馈。(app在运行时)
- */
-+(void)handleReceiveNotification:(nonnull NSDictionary *)userInfo successCallback:(nullable void (^)(void)) successCallback errorCallback:(nullable void (^)(void)) errorCallback
-{
-    [XGPush handleReceiveNotification:userInfo successCallback:successCallback errorCallback:errorCallback];
+- (void)xgPushDidFinishStop:(BOOL)isSuccess error:(NSError *)error {
+    NSLog(@"%s, 注销信鸽服务 %@, error %@", __FUNCTION__, isSuccess?@"成功":@"失败", error);
+}
+
+#pragma mark - XGPushTokenManagerDelegate
+- (void)xgPushDidBindWithIdentifier:(NSString *)identifier type:(XGPushTokenBindType)type error:(NSError *)error {
+    NSLog(@"%s, id is %@, error %@", __FUNCTION__, identifier, error);
+}
+
+- (void)xgPushDidUnbindWithIdentifier:(NSString *)identifier type:(XGPushTokenBindType)type error:(NSError *)error {
+    NSLog(@"%s, id is %@, error %@", __FUNCTION__, identifier, error);
 }
 
 /**
  * 打开 Debug 模式以后可以在终端看到详细的信鸽 Debug 信息.方便定位问题
  */
-RCT_EXPORT_METHOD(enableDebug:(BOOL)isDebug)
+RCT_EXPORT_METHOD(setEnableDebug:(BOOL)enableDebug)
 {
-    XGSetting *setting = [XGSetting getInstance];
-    [setting enableDebug:isDebug];
+    [[XGPush defaultManager] setEnableDebug:enableDebug];
 }
 
 /**
@@ -493,167 +498,101 @@ RCT_EXPORT_METHOD(enableDebug:(BOOL)isDebug)
  */
 RCT_EXPORT_METHOD(isEnableDebug:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    XGSetting *setting = [XGSetting getInstance];
-    BOOL isDebug = [setting isEnableDebug];
-    resolve(@(isDebug));
+    BOOL debugEnabled = [[XGPush defaultManager] isEnableDebug];
+    resolve(@(debugEnabled));
 }
 
 /**
- * 初始化信鸽
- * @param appId - 通过前台申请的accessId
- * @param appKey - 通过前台申请的accessKey
- * @return none
- */
-RCT_EXPORT_METHOD(startApp:(uint64_t)accessId accessKey:(nonnull NSString *)accessKey)
-{
-    [XGPush startApp:accessId appKey:accessKey];
-}
-
-/**
- 判断当前是否是已注销状态
+ @brief 通过使用在信鸽官网注册的应用的信息，启动信鸽推送服务
  
- @return 是否已经注销推送
+ @param appID 通过前台申请的应用ID
+ @param appKey 通过前台申请的appKey
+ @param delegate 回调对象
+ @note 接口所需参数必须要正确填写，反之信鸽服务将不能正确为应用推送消息
  */
-RCT_EXPORT_METHOD(isUnRegisterStatus:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(startXGWithAppID:(uint64_t)appID appKey:(nonnull NSString *)appKey)
 {
-    BOOL isUnRegister = [XGPush isUnRegisterStatus];
-    resolve(@(isUnRegister));
+    [[XGPush defaultManager] startXGWithAppID:appID appKey:appKey delegate:self];
 }
 
 /**
- 查询推送是否打开(以弹窗为准)
- 
- @param result 查询回调.若推送打开,回调参数为 YES, 否则为 NO
+ @brief 停止信鸽推送服务
+ @note 调用此方法将导致当前设备不再接受信鸽服务推送的消息.如果再次需要接收信鸽服务的消息推送，则必须需要再次调用startXG:withAppKey:delegate:方法重启信鸽推送服务
  */
-RCT_EXPORT_METHOD(isPushOn:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(stopXGNotification)
 {
-    [XGPush isPushOn:^(BOOL isOn) {
-        NSLog(@"[XGPush] Push Is %@", isOn ? @"ON" : @"OFF");
-        resolve(@(isOn));
-    }];
+    [[XGPush defaultManager] stopXGNotification];
 }
 
 /**
- 注册设备并且设置账号
+ @brief 上报地理位置信息
  
- @param deviceToken 通过app delegate的didRegisterForRemoteNotificationsWithDeviceToken回调的获取
- @param account 需要设置的账号,长度为2个字节以上，不要使用"test","123456"这种过于简单的字符串,
- 若不想设置账号,请传入nil
- @param successCallback 成功回调
- @param errorCallback 失败回调
- @return  获取的 deviceToken 字符串
+ @param latitude 纬度
+ @param longitude 经度
  */
-RCT_EXPORT_METHOD(registerDevice:(nonnull NSString *) deviceToken account:(nullable NSString *)account resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    void (^successBlock)(void) = ^(void){
-        resolve(@"信鸽推送注册成功！");
-    };
-    
-    void (^errorBlock)(void) = ^(void){
-        reject(@"XGPUSH_REGISTER_ERROR", @"信鸽推送注册失败.", nil);
-    };
-    
-    //注册设备
-    [XGPush registerDeviceStr:deviceToken account:account successCallback:successBlock errorCallback:errorBlock];
+RCT_EXPORT_METHOD(reportLocationWithLatitude:(double)latitude longitude:(double)longitude) {
+    [[XGPush defaultManager] reportLocationWithLatitude: latitude longitude: longitude];
 }
 
 /**
- 注销设备，设备不再进行推送
+ @brief 上报当前App角标数到信鸽服务器
  
- @param successCallback 成功回调
- @param errorCallback 失败回调
+ @param badgeNumber 应用的角标数
+ @note (后台维护中)此接口是为了实现角标+1的功能，服务器会在这个数值基础上进行角标数新增的操作，调用成功之后，会覆盖之前值。
  */
-RCT_EXPORT_METHOD(unRegisterDevice:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    void (^successBlock)(void) = ^(void){
-        resolve(@"注销设备成功！");
-    };
-    
-    void (^errorBlock)(void) = ^(void){
-        reject(@"XGPUSH_UNREGISTER_DEVICE_FAIL",@"注销设备失败!",nil);
-    };
-    
-    [XGPush unRegisterDevice:successBlock errorCallback:errorBlock];
+RCT_EXPORT_METHOD(setBadge:(NSInteger)badgeNumber) {
+    [[XGPush defaultManager] setBadge: badgeNumber];
 }
 
 /**
- 设置设备的帐号. 设置账号前需要调用一次registerDevice
+ @brief 查询设备通知权限是否被用户允许
  
- @param account 需要设置的账号,长度为2个字节以上，不要使用"test","123456"这种过于简单的字符串,
- 若不想设置账号,请传入nil
- @param successCallback 成功回调
- @param errorCallback 失败回调
+ @param handler 查询结果的返回方法
+ @note iOS 10 or later 回调是异步地执行
  */
-RCT_EXPORT_METHOD(setAccount:(nonnull NSString *)account resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    void (^successBlock)(void) = ^(void){
-        resolve(@"设置设备的帐号成功！");
-    };
+RCT_EXPORT_METHOD(deviceNotificationIsAllowed:(nonnull void (^)(BOOL isAllowed))handler) {
     
-    void (^errorBlock)(void) = ^(void){
-        reject(@"XGPUSH_SET_ACCOUNT_FAIL", @"设置设备的帐号失败.", nil);
-    };
-    
-    [XGPush setAccount:account successCallback:successBlock errorCallback:errorBlock];
-}
-
-
-/**
- 删除已经设置的账号
- 
- @param successCallback 成功回调
- @param errorCallback 失败回调
- */
-RCT_EXPORT_METHOD(delAccount:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    void (^successBlock)(void) = ^(void){
-        resolve(@"删除已经设置的账号成功！");
-    };
-    
-    void (^errorBlock)(void) = ^(void){
-        reject(@"XGPUSH_DELETE_ACCOUNT_FAIL", @"删除已经设置的账号失败.", nil);
-    };
-    // 设置账号,要在注册设备之前完成
-    [XGPush delAccount:successBlock errorCallback:errorBlock];
 }
 
 /**
- 设置 tag
- 
- @param tag 需要设置的 tag
- @param successCallback  成功回调
- @param errorCallback 失败回调
+ * 绑定标签，一个设备可以绑定多个标签（多次调用）
  */
-RCT_EXPORT_METHOD(setTag:(NSString *)tagName resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(bindWithTag:tag)
 {
-    void (^successBlock)(void) = ^(void){
-        resolve(@"设置Tag成功！");
-    };
-    
-    void (^errorBlock)(void) = ^(void){
-        reject(@"XGPUSH_SET_TAG_FAIL",@"设置Tag失败!",nil);
-    };
-    [XGPush setTag:tagName successCallback:successBlock errorCallback:errorBlock];
+    [[XGPushTokenManager defaultTokenManager] bindWithIdentifier:tag type:XGPushTokenBindTypeTag];
 }
 
 /**
- 删除tag
- 
- @param tag 需要删除的 tag
- @param successCallback  成功回调
- @param errorCallback 失败回调
+ 绑定账号
  */
-RCT_EXPORT_METHOD(delTag:(NSString *)tagName resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(bindWithAccount:account)
 {
-    void (^successBlock)(void) = ^(void){
-        resolve(@"删除Tag成功！");
-    };
-    
-    void (^errorBlock)(void) = ^(void){
-        reject(@"XGPUSH_DELETE_TAG_FAIL",@"删除Tag失败!",nil);
-    };
-    
-    [XGPush delTag:tagName successCallback:successBlock errorCallback:errorBlock];
+    [[XGPushTokenManager defaultTokenManager] bindWithIdentifier:account type:XGPushTokenBindTypeAccount];
+}
+
+/**
+ 解绑标签
+ */
+RCT_EXPORT_METHOD(unbindWithTag:tag)
+{
+    [[XGPushTokenManager defaultTokenManager] unbindWithIdentifer:tag type:XGPushTokenBindTypeTag];
+}
+
+/**
+ 解绑账号
+ */
+RCT_EXPORT_METHOD(unbindWithAccount:account)
+{
+    [[XGPushTokenManager defaultTokenManager] unbindWithIdentifer:account type:XGPushTokenBindTypeAccount];
+}
+
+/**
+ 获取版本号
+ */
+RCT_EXPORT_METHOD(sdkVersion:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSString* version = [[XGPush defaultManager] sdkVersion];
+    resolve(version);
 }
 
 #else //TARGET_OS_TV
