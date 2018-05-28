@@ -20,6 +20,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.tencent.android.tpush.XGIOperateCallback;
 import com.tencent.android.tpush.XGLocalMessage;
+import com.tencent.android.tpush.XGPushClickedResult;
 import com.tencent.android.tpush.XGPushConfig;
 import com.tencent.android.tpush.XGPushManager;
 import com.tencent.android.tpush.encrypt.Rijndael;
@@ -371,8 +372,13 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     public void getInitialNotification(Promise promise) {
         WritableMap params = Arguments.createMap();
         Activity activity = getCurrentActivity();
+        Log.d("getInitialNotification", ">>>>>>>>>>>>>>>>>");
         if (activity != null) {
             Intent intent = activity.getIntent();
+            XGPushClickedResult result = XGPushManager.onActivityStarted(activity);
+            if (result != null) {
+                Log.d("getInitialNotification", result.getContent());
+            }
             try {
                 if(intent != null && intent.hasExtra("protect")) {
                     String title = Rijndael.decrypt(intent.getStringExtra("title"));
@@ -381,6 +387,7 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
                     params.putString("title",  title);
                     params.putString("content",  content);
                     params.putString("custom_content",  customContent);
+                    Log.d("getInitialNotification", content);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -422,11 +429,10 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
 
     @Override
     public void onNewIntent(Intent intent) {
-        /*
+        Log.d("onNewIntent", ">>>>>>>>>>>>>>>>>");
         Activity activity = getCurrentActivity();
         if (activity != null) {
             activity.setIntent(intent); // 后台运行时点击通知会调用
         }
-        */
     }
 }

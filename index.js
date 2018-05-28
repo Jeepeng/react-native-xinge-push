@@ -52,7 +52,11 @@ class XGPush {
         sound: true
       });
     } else {
-      return XGPushManager.registerPush(account);
+      if (account) {
+        return XGPushManager.bindAccount(account);
+      } else {
+        return XGPushManager.registerPush();
+      }
     }
   }
 

@@ -94,15 +94,15 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.3'
+    compileSdkVersion 26
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.jeepeng.push"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 3
-        versionName "1.0"
+        versionName "1.0.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -110,6 +110,7 @@ android {
             XG_ACCESS_ID: "2100209996",
             XG_ACCESS_KEY: "AHW931HVZ42A",
             HW_APPID: "100225811",
+            PACKAGE_NAME: "com.jeepeng.push"
         ]
     }
     splits {
@@ -144,7 +145,7 @@ android {
 dependencies {
     compile project(':react-native-xinge-push')
     compile fileTree(dir: "libs", include: ["*.jar"])
-    compile "com.android.support:appcompat-v7:25.4.0"
+    compile "com.android.support:appcompat-v7:26.1.0"
     compile "com.facebook.react:react-native:+"  // From node_modules
 }
 

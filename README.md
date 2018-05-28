@@ -3,11 +3,12 @@
 - [x] 适配华为官方推送通道
 - [x] 适配小米官方推送通道
 - [x] 适配魅族官方推送通道
-- [ ] 升级信鸽iOS SDK 到 v3.1.0
+- [x] 升级信鸽iOS SDK 到 v3.1.0
 
 ## 版本对照表
 react-native-xinge-push | 信鸽SDK（Android） | 信鸽SDK（iOS）
 ---|---|---
+0.6 | 3.2.2 | 3.1.1
 0.4～0.5 | 3.2.2 | 2.5.0
 0.3 | 3.1.0 | 2.5.0
 
@@ -88,13 +89,26 @@ AppDelegate.m:
   return YES;
 }
 
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    NSLog(@"[XGDemo] device token is %@", [[XGPushTokenManager defaultTokenManager] deviceTokenString]);
+// Required to register for notifications
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+{
+  [XGPushManager didRegisterUserNotificationSettings:notificationSettings];
 }
 
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [XGPushManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
+// Required for the registrationError event.
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-	NSLog(@"[XGDemo] register APNS fail.\n[XGDemo] reason : %@", error);
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"registerDeviceFailed" object:nil];
+	NSLog(@"[XGPush] register APNS fail.\n[XGPush] reason : %@", error);
+  [XGPushManager didFailToRegisterForRemoteNotificationsWithError:error];
+}
+
+// Required for the localNotification event.
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+  [XGPushManager didReceiveLocalNotification:notification];
 }
 
 /**
@@ -105,8 +119,8 @@ AppDelegate.m:
  @param completionHandler 完成回调
  */
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-  NSLog(@"[XGDemo] receive slient Notification");
-  NSLog(@"[XGDemo] userinfo %@", userInfo);
+  NSLog(@"[XGPush] receive slient Notification");
+  NSLog(@"[XGPush] userinfo %@", userInfo);
   UIApplicationState state = [application applicationState];
   BOOL isClicked = (state != UIApplicationStateActive);
   NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:userInfo];
@@ -115,7 +129,7 @@ AppDelegate.m:
     remoteNotification[@"background"] = @YES;
   }
   [[XGPush defaultManager] reportXGNotificationInfo:remoteNotification];
-  completionHandler(UIBackgroundFetchResultNewData);
+  [XGPushManager didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 
 // iOS 10 新增 API
@@ -126,7 +140,7 @@ AppDelegate.m:
 // App 用户在通知中心清除消息
 // 无论本地推送还是远程推送都会走这个回调
 - (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-	NSLog(@"[XGDemo] click notification");
+	NSLog(@"[XGPush] click notification");
 	if ([response.actionIdentifier isEqualToString:@"xgaction001"]) {
 		NSLog(@"click from Action1");
 	} else if ([response.actionIdentifier isEqualToString:@"xgaction002"]) {
