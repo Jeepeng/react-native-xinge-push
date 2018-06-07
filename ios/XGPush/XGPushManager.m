@@ -16,6 +16,7 @@
 #import <React/RCTUtils.h>
 
 NSString *const RCTRemoteNotificationReceived = @"RemoteNotificationReceived";
+NSString *const RCTRemoteMessageReceived = @"RemoteMessageReceived";
 
 static NSString *const kLocalNotificationReceived = @"LocalNotificationReceived";
 static NSString *const kRemoteNotificationsRegistered = @"RemoteNotificationsRegistered";
@@ -142,6 +143,11 @@ RCT_EXPORT_MODULE()
                                            selector:@selector(handleLocalNotificationReceived:)
                                                name:kLocalNotificationReceived
                                              object:nil];
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(handleRemoteMessageReceived:)
+                                               name:RCTRemoteMessageReceived
+                                             object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleRemoteNotificationReceived:)
                                                name:RCTRemoteNotificationReceived
@@ -169,6 +175,7 @@ RCT_EXPORT_MODULE()
 {
   return @[@"localNotificationReceived",
            @"remoteNotificationReceived",
+           @"remoteMessageReceived",
            @"remoteNotificationsRegistered",
            @"remoteNotificationRegistrationError"];
 }
@@ -203,6 +210,48 @@ RCT_EXPORT_MODULE()
                                                     userInfo:@{@"error": error}];
 }
 
+// iOS 10 新增 API
+// iOS 10 会走新 API, iOS 10 以前会走到老 API
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+// App 用户点击通知
+// App 用户选择通知中的行为
+// App 用户在通知中心清除消息
+// 无论本地推送还是远程推送都会走这个回调
+- (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    UNNotification * notification = response.notification;
+    
+    if ([response.actionIdentifier isEqualToString:@"xgaction001"]) {
+    NSLog(@"click from Action1");
+    } else if ([response.actionIdentifier isEqualToString:@"xgaction002"]) {
+    NSLog(@"click from Action2");
+    }
+    UIApplicationState state = [RCTSharedApplication() applicationState];
+    NSLog(@"state = %ld, UIApplicationStateActive = %ld", (long)state, (long)UIApplicationStateActive);
+    BOOL isClicked = (state != UIApplicationStateActive);
+    NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:notification.request.content.userInfo];
+    if(isClicked) {
+      remoteNotification[@"clicked"] = @YES;
+      remoteNotification[@"background"] = @YES;
+    }
+    NSLog(@"[XGPush] click notification %@", remoteNotification);
+    NSDictionary * userInfo = @{@"notification": remoteNotification};
+    [[NSNotificationCenter defaultCenter] postNotificationName:RCTRemoteNotificationReceived
+                                                        object:self
+                                                      userInfo:userInfo];
+  [[XGPush defaultManager] reportXGNotificationResponse:response];
+  
+  completionHandler();
+}
+
+// App 在前台弹通知需要调用这个接口
+- (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSDictionary * userInfo = notification.request.content.userInfo;
+  NSLog(@"[XGPush] willPresentNotification notification %@", userInfo);
+  [[XGPush defaultManager] reportXGNotificationInfo:userInfo];
+  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
+}
+#endif
+
 + (void)didReceiveRemoteNotification:(NSDictionary *)notification
 {
   NSDictionary *userInfo = @{@"notification": notification};
@@ -215,13 +264,33 @@ RCT_EXPORT_MODULE()
               fetchCompletionHandler:(RCTRemoteNotificationCallback)completionHandler
 {
   NSDictionary *userInfo = @{@"notification": notification, @"completionHandler": completionHandler};
+  NSLog(@"%s, notification is %@", __FUNCTION__, notification);
   [[NSNotificationCenter defaultCenter] postNotificationName:RCTRemoteNotificationReceived
+                                                      object:self
+                                                    userInfo:userInfo];
+}
+
++ (void)didReceiveRemoteMessage:(NSDictionary *)notification
+{
+  NSDictionary *userInfo = @{@"notification": notification};
+  [[NSNotificationCenter defaultCenter] postNotificationName:RCTRemoteMessageReceived
+                                                      object:self
+                                                    userInfo:userInfo];
+}
+
++ (void)didReceiveRemoteMessage:(NSDictionary *)notification
+              fetchCompletionHandler:(RCTRemoteNotificationCallback)completionHandler
+{
+  NSDictionary *userInfo = @{@"notification": notification, @"completionHandler": completionHandler};
+  NSLog(@"%s, notification is %@", __FUNCTION__, notification);
+  [[NSNotificationCenter defaultCenter] postNotificationName:RCTRemoteMessageReceived
                                                       object:self
                                                     userInfo:userInfo];
 }
 
 + (void)didReceiveLocalNotification:(UILocalNotification *)notification
 {
+  NSLog(@"%s, notification is %@", __FUNCTION__, notification);
   [[NSNotificationCenter defaultCenter] postNotificationName:kLocalNotificationReceived
                                                       object:self
                                                     userInfo:RCTFormatLocalNotification(notification)];
@@ -230,6 +299,25 @@ RCT_EXPORT_MODULE()
 - (void)handleLocalNotificationReceived:(NSNotification *)notification
 {
   [self sendEventWithName:@"localNotificationReceived" body:notification.userInfo];
+}
+
+- (void)handleRemoteMessageReceived:(NSNotification *)notification
+{
+  NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionary];
+  remoteNotification[@"content"] = notification.userInfo[@"notification"];
+  RCTRemoteNotificationCallback completionHandler = notification.userInfo[@"completionHandler"];
+  NSString *notificationId = [[NSUUID UUID] UUIDString];
+  remoteNotification[@"notificationId"] = notificationId;
+  remoteNotification[@"remote"] = @YES;
+  if (completionHandler) {
+    if (!self.remoteNotificationCallbacks) {
+      // Lazy initialization
+      self.remoteNotificationCallbacks = [NSMutableDictionary dictionary];
+    }
+    self.remoteNotificationCallbacks[notificationId] = completionHandler;
+  }
+
+  [self sendEventWithName:@"remoteMessageReceived" body:remoteNotification];
 }
 
 - (void)handleRemoteNotificationReceived:(NSNotification *)notification
@@ -263,6 +351,7 @@ RCT_EXPORT_MODULE()
     @"code": @(error.code),
     @"details": error.userInfo,
   };
+  NSLog(@"%s, notification is %@", __FUNCTION__, notification);
   [self sendEventWithName:@"remoteNotificationRegistrationError" body:errorDetails];
 }
 
@@ -512,7 +601,7 @@ RCT_EXPORT_METHOD(isEnableDebug:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
  */
 RCT_EXPORT_METHOD(startXGWithAppID:(uint64_t)appID appKey:(nonnull NSString *)appKey)
 {
-    [[XGPush defaultManager] startXGWithAppID:appID appKey:appKey delegate:self];
+  [[XGPush defaultManager] startXGWithAppID:appID appKey:appKey delegate:self];
 }
 
 /**

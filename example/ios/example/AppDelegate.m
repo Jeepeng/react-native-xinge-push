@@ -19,7 +19,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   NSURL *jsCodeLocation;
-
+  #ifdef DEBUG
+    [[RCTBundleURLProvider sharedSettings] setJsLocation:@"192.168.0.154"];
+  #endif    
   jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
@@ -61,52 +63,21 @@
 }
 
 /**
- 收到通知消息的回调，通常此消息意味着有新数据可以读取（iOS 7.0+）
+ 收到静默消息的回调，通常此消息意味着有新数据可以读取（iOS 7.0+）
  
  @param application  UIApplication 实例
  @param userInfo 推送时指定的参数
  @param completionHandler 完成回调
  */
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-  NSLog(@"[XGPush] receive slient Notification");
+  NSLog(@"[XGPush] receive slient Message");
   NSLog(@"[XGPush] userinfo %@", userInfo);
-  UIApplicationState state = [application applicationState];
-  BOOL isClicked = (state != UIApplicationStateActive);
-  NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:userInfo];
-  if(isClicked) {
-    remoteNotification[@"clicked"] = @YES;
-    remoteNotification[@"background"] = @YES;
-  }
-  [[XGPush defaultManager] reportXGNotificationInfo:remoteNotification];
-  [XGPushManager didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+  
+  [[XGPush defaultManager] reportXGNotificationInfo:userInfo];
+  [XGPushManager didReceiveRemoteMessage:userInfo fetchCompletionHandler:completionHandler];
 }
 
-// iOS 10 新增 API
-// iOS 10 会走新 API, iOS 10 以前会走到老 API
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-// App 用户点击通知
-// App 用户选择通知中的行为
-// App 用户在通知中心清除消息
-// 无论本地推送还是远程推送都会走这个回调
-- (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-	NSLog(@"[XGPush] click notification");
-	if ([response.actionIdentifier isEqualToString:@"xgaction001"]) {
-		NSLog(@"click from Action1");
-	} else if ([response.actionIdentifier isEqualToString:@"xgaction002"]) {
-		NSLog(@"click from Action2");
-	}
-	
-	[[XGPush defaultManager] reportXGNotificationResponse:response];
-	
-	completionHandler();
-}
 
-// App 在前台弹通知需要调用这个接口
-- (void)xgPushUserNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-	[[XGPush defaultManager] reportXGNotificationInfo:notification.request.content.userInfo];
-	completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
-}
-#endif
 
 
 @end
