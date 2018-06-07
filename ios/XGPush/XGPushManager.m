@@ -227,10 +227,11 @@ RCT_EXPORT_MODULE()
     }
     UIApplicationState state = [RCTSharedApplication() applicationState];
     NSLog(@"state = %ld, UIApplicationStateActive = %ld", (long)state, (long)UIApplicationStateActive);
-    BOOL isClicked = (state != UIApplicationStateActive);
+
+    BOOL isBackground = (state != UIApplicationStateActive);
     NSMutableDictionary *remoteNotification = [NSMutableDictionary dictionaryWithDictionary:notification.request.content.userInfo];
-    if(isClicked) {
-      remoteNotification[@"clicked"] = @YES;
+    remoteNotification[@"clicked"] = @YES;
+    if(isBackground) {
       remoteNotification[@"background"] = @YES;
     }
     NSLog(@"[XGPush] click notification %@", remoteNotification);
