@@ -14,33 +14,5 @@
                 <action android:name="com.tencent.android.tpush.action.FEEDBACK" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:exported="true"
-            android:name="com.tencent.android.mipush.XMPushMessageReceiver">
-            <intent-filter>
-                <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.xiaomi.mipush.ERROR" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name="com.tencent.android.mzpush.MZPushMessageReceiver">
-            <intent-filter>
-                <!-- 接收push消息 -->
-                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
-                <!-- 接收register消息-->
-                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK"/>
-                <!-- 接收unregister消息-->
-                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK"/>
-
-                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
-                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
-
-                <category android:name="com.jeepeng.react.xgpush"/>
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
