@@ -16,6 +16,7 @@ android {
                 XG_ACCESS_ID: "",
                 XG_ACCESS_KEY: "",
                 HW_APPID: "",
+                PACKAGE_NAME: ""
         ]
     }
 
