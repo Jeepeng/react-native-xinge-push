@@ -15,8 +15,7 @@ android {
         manifestPlaceholders = [
                 XG_ACCESS_ID: "",
                 XG_ACCESS_KEY: "",
-                HW_APPID: "",
-                PACKAGE_NAME: ""
+                HW_APPID: ""
         ]
     }
 
