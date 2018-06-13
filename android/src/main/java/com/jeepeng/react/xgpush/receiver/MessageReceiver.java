@@ -102,10 +102,6 @@ public class MessageReceiver extends XGPushBaseReceiver {
             bundle.putString("title", notification.getTitle());
             bundle.putString("custom_content", notification.getCustomContent());
             intent.putExtra("notification", bundle);
-
-            intent.putExtra("title", notification.getTitle());
-            intent.putExtra("content", notification.getContent());
-            intent.putExtra("custom_content", notification.getCustomContent());
             intent.putExtra("activity", notification.getActivityName());
             intent.putExtra("msgId", notification.getMsgId());
             intent.putExtra("notificationActionType", notification.getNotificationActionType());

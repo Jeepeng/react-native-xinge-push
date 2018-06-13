@@ -52,9 +52,11 @@ public class PushModule extends ReactContextBaseJavaModule implements ActivityEv
     }
 
     private void sendEvent(String eventName, @Nullable WritableMap params) {
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
+        if(getReactApplicationContext().hasActiveCatalystInstance()){
+            getReactApplicationContext()
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(eventName, params);
+        }
     }
 
     private void registerReceivers() {
