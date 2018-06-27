@@ -32,6 +32,7 @@ class Example extends Component {
   }
 
   initPush() {
+    XGPush.enableDebug(true)
     // 初始化
     if(Platform.OS === 'android') {
       // 请将1111111111修改为APP的AccessId，10位数字
@@ -93,7 +94,7 @@ class Example extends Component {
    * @private
    */
   _onMessage(message) {
-    alert('收到透传消息: ' + message.content);
+    alert('收到透传消息: ' + JSON.stringify(message.content));
   }
 
   /**
@@ -102,6 +103,7 @@ class Example extends Component {
    * @private
    */
   _onNotification(notification) {
+    console.log(notification)
     if(notification.clicked === true) {
       alert('app处于后台时收到通知' + JSON.stringify(notification));
     } else {

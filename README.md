@@ -36,6 +36,9 @@ react-native link react-native-xinge-push
 5. 再次进行单推/全推，如果能够收到推送，则表明厂商通道集成成功
 
 ###### 注意事项
+消息目前将其理解为两类：静默消息和普通通知
+静默消息不会弹窗，通知会弹窗
+
 如果在EMUI 8.0（Android 8）上，出现发通知成功但通知栏不显示的情况，并在Logcat看到以下错误：
 ```
 E/NotificationService: No Channel found for pkg=com.jeepeng.push, channelId=null, id=995033369, tag=null, opPkg=com.huawei.android.pushagent, callingUid=10060, userId=0, incomingUserId=0, notificationUid=10261, notification=Notification(channel=null pri=0 contentView=null vibrate=null sound=default tick defaults=0x1 flags=0x10 color=0x00000000 vis=PRIVATE)

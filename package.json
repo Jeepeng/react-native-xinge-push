@@ -1,6 +1,6 @@
 {
   "name": "react-native-xinge-push",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Xinge push for react-native",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Jeepeng/react-native-xinge-push.git"
+    "url": "git+https://github.com/wanxsb/react-native-xinge-push.git"
   },
   "keywords": [
     "xinge",
@@ -19,7 +19,7 @@
   "author": "Jeepeng",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/Jeepeng/react-native-xinge-push/issues"
+    "url": "https://github.com/wanxsb/react-native-xinge-push/issues"
   },
-  "homepage": "https://github.com/Jeepeng/react-native-xinge-push#readme"
+  "homepage": "https://github.com/wanxsb/react-native-xinge-push#readme"
 }

@@ -24,6 +24,7 @@ const EventMapping = Platform.select({
   ios: {
     register: 'remoteNotificationsRegistered',
     notification: 'remoteNotificationReceived',
+    message: 'remoteMessageReceived',
     localNotification: 'localNotificationReceived',
   },
 });
@@ -118,7 +119,7 @@ class XGPush {
   static addEventListener(eventType, callback) {
     let event = EventMapping[eventType];
     if (!event) {
-      console.warn('XGPush only supports `notification`, `register` and `localNotification` events');
+      console.warn('XGPush only supports `notification`, `register`, `message` ,and `localNotification` events');
       return;
     }
     let listener = XGNativeEventEmitter.addListener(event, (data) => {
@@ -133,7 +134,7 @@ class XGPush {
 
   static removeEventListener(eventType, callback) {
     if (!EventMapping[eventType]) {
-      console.warn('XGPush only supports `notification`, `register` and `localNotification` events');
+      console.warn('XGPush only supports `notification`, `register`, `message` and `localNotification` events');
       return;
     }
     let listener = _handlers.get(callback);
